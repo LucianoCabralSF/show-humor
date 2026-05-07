@@ -3,67 +3,71 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Ingressos - Show de Humor</title>
+    <title>Show de Humor - Fabio & Mundica</title>
     <script src="https://cdn.tailwindcss.com"></script>
     <style>
         body { background-color: #050505; color: white; }
-        .card-show { background: #121212; border: 1px solid #333; border-radius: 24px; }
+        .card-show { background: #121212; border: 1px solid #333; border-radius: 24px; overflow: hidden; }
         .btn-buy { background: #e11d48; transition: all 0.3s ease; }
         .btn-buy:hover { background: #be123c; transform: translateY(-2px); }
+        .glow { box-shadow: 0 0 20px rgba(234, 179, 8, 0.2); }
     </style>
 </head>
-<body class="flex items-center justify-center min-h-screen p-4">
+<body class="flex items-center justify-center min-h-screen p-4 font-sans">
 
-    <div class="card-show max-w-md w-full p-8 shadow-2xl">
-        <header class="text-center mb-8">
-            <h1 class="text-3xl font-black text-yellow-500 italic uppercase">Show de Humor</h1>
-            <p class="text-gray-400 text-sm tracking-widest uppercase">Nova Olinda do Norte</p>
-        </header>
+    <div class="card-show max-w-md w-full shadow-2xl glow">
+        <img src="cartaz.jpg" alt="Show de Humor Fabio e Mundica" class="w-full h-auto border-b border-zinc-800">
 
-        <form id="formIngresso" class="space-y-4">
-            <div>
-                <label class="text-[10px] uppercase text-gray-500 font-bold ml-1">Nome Completo</label>
-                <input type="text" id="nome" required 
-                       class="w-full p-4 bg-zinc-800 rounded-xl border border-zinc-700 outline-none focus:border-yellow-500">
-            </div>
-            
-            <div class="grid grid-cols-2 gap-3">
+        <div class="p-8">
+            <header class="text-center mb-6">
+                <h1 class="text-2xl font-black text-yellow-500 italic uppercase">Garanta seu Ingresso</h1>
+                <p class="text-gray-500 text-[10px] tracking-widest uppercase mt-1">Auditório Instituto Lótus</p>
+            </header>
+
+            <form id="formIngresso" class="space-y-4">
                 <div>
-                    <label class="text-[10px] uppercase text-gray-500 font-bold ml-1">Idade (15+)</label>
-                    <input type="number" id="idade" min="15" required 
+                    <label class="text-[10px] uppercase text-gray-500 font-bold ml-1">Nome Completo</label>
+                    <input type="text" id="nome" required placeholder="Como no documento"
                            class="w-full p-4 bg-zinc-800 rounded-xl border border-zinc-700 outline-none focus:border-yellow-500">
                 </div>
-                <div>
-                    <label class="text-[10px] uppercase text-gray-500 font-bold ml-1">WhatsApp</label>
-                    <input type="tel" id="whatsapp" required 
-                           class="w-full p-4 bg-zinc-800 rounded-xl border border-zinc-700 outline-none focus:border-yellow-500">
+                
+                <div class="grid grid-cols-2 gap-3">
+                    <div>
+                        <label class="text-[10px] uppercase text-gray-500 font-bold ml-1">Idade (15+)</label>
+                        <input type="number" id="idade" min="15" required placeholder="Ex: 20"
+                               class="w-full p-4 bg-zinc-800 rounded-xl border border-zinc-700 outline-none focus:border-yellow-500">
+                    </div>
+                    <div>
+                        <label class="text-[10px] uppercase text-gray-500 font-bold ml-1">WhatsApp</label>
+                        <input type="tel" id="whatsapp" required placeholder="(92) 9..."
+                               class="w-full p-4 bg-zinc-800 rounded-xl border border-zinc-700 outline-none focus:border-yellow-500">
+                    </div>
                 </div>
+
+                <div>
+                    <label class="text-[10px] uppercase text-gray-500 font-bold ml-1">Setor</label>
+                    <select id="setor" class="w-full p-4 bg-zinc-800 rounded-xl border border-zinc-700 outline-none focus:border-yellow-500">
+                        <option value="Plateia Geral">Plateia Geral - R$ 30,00</option>
+                        <option value="Lote VIP">Lote VIP - R$ 40,00</option>
+                    </select>
+                </div>
+
+                <button type="submit" id="btnAcao" class="btn-buy w-full py-5 rounded-2xl font-black uppercase text-lg shadow-lg mt-4 transition-all active:scale-95">
+                    Comprar Agora
+                </button>
+            </form>
+
+            <div class="mt-6 text-center">
+                <p class="text-[10px] text-gray-500 font-bold uppercase">
+                    Evento Oficial - Ingressos Limitados (100 un)
+                </p>
             </div>
-
-            <div>
-                <label class="text-[10px] uppercase text-gray-500 font-bold ml-1">Escolha seu lugar:</label>
-                <select id="setor" class="w-full p-4 bg-zinc-800 rounded-xl border border-zinc-700 outline-none focus:border-yellow-500">
-                    <option value="Plateia Geral">Plateia Geral - R$ 30,00</option>
-                    <option value="Lote VIP">Lote VIP - R$ 40,00</option>
-                </select>
-            </div>
-
-            <button type="submit" id="btnAcao" class="btn-buy w-full py-5 rounded-2xl font-black uppercase text-lg shadow-lg mt-6">
-                Comprar Ingresso
-            </button>
-        </form>
-
-        <div class="mt-6 text-center">
-            <p class="text-[10px] text-gray-500 uppercase font-bold">
-                ⚠️ Classificação 15 Anos | Ingressos Limitados
-            </p>
         </div>
     </div>
 
     <script>
         const APPS_SCRIPT_URL = 'https://script.google.com/macros/s/AKfycbwr33lbAy-1pr2iIV7pRkymPVSqNT24ZOMb3c-WOcQMngRvIjyJK2XlLKnBNoXOfBfu/exec';
-        const INFINITE_LINK = 'https://checkout.infinitepay.io/instituto_lotus/qxn3oeq2ht';
-
+        
         document.getElementById('formIngresso').onsubmit = async (e) => {
             e.preventDefault();
             const btn = document.getElementById('btnAcao');
@@ -78,19 +82,22 @@
             };
 
             try {
-                // Registro silencioso na planilha
-                await fetch(APPS_SCRIPT_URL, {
+                // Envia dados para o Google Sheets/Apps Script
+                const response = await fetch(APPS_SCRIPT_URL, {
                     method: 'POST',
                     mode: 'no-cors',
                     body: JSON.stringify(dados)
                 });
 
-                // Redireciona para o checkout oficial da InfinitePay
-                window.location.href = INFINITE_LINK;
+                // Como a API dinâmica agora retorna a URL da InfinitePay:
+                // Mas no modo no-cors não lemos o JSON. 
+                // Então, como você tem o link fixo, vamos redirecionar direto:
+                window.location.href = 'https://checkout.infinitepay.io/instituto_lotus/qxn3oeq2ht';
+                
             } catch (err) {
-                alert('Erro ao processar. Tente novamente.');
+                alert('Erro ao conectar com o servidor. Tente novamente.');
                 btn.disabled = false;
-                btn.innerText = 'Comprar Ingresso';
+                btn.innerText = 'Comprar Agora';
             }
         };
     </script>
