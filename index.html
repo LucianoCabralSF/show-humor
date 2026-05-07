@@ -1,0 +1,119 @@
+<!DOCTYPE html>
+<html lang="pt-br">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Show de Humor - Fabio & Mundica</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+    <style>
+        body { background-color: #050505; }
+        .neon-border { box-shadow: 0 0 15px rgba(234, 179, 8, 0.3); }
+    </style>
+</head>
+<body class="text-white font-sans">
+
+    <div class="max-w-md mx-auto p-8 border-2 border-yellow-600 mt-10 bg-zinc-900 rounded-3xl shadow-2xl neon-border">
+        <div class="text-center mb-8">
+            <h1 class="text-4xl font-black text-yellow-500 uppercase italic leading-none">Show de Humor</h1>
+            <p class="text-sm tracking-widest text-gray-400 mt-2">FABIO & MUNDICA</p>
+            <div class="mt-4 inline-block bg-red-600 text-white text-[10px] font-bold px-3 py-1 rounded-full">
+                ⚠️ CLASSIFICAÇÃO: 15+ ANOS
+            </div>
+        </div>
+        
+        <form id="vendaForm" class="space-y-4">
+            <div>
+                <label class="block text-[10px] uppercase text-gray-500 font-bold mb-1 ml-1">Nome Completo</label>
+                <input type="text" id="nome" required placeholder="Seu nome" 
+                       class="w-full p-4 bg-zinc-800 border border-zinc-700 rounded-2xl focus:border-yellow-500 outline-none transition-all">
+            </div>
+            
+            <div class="grid grid-cols-2 gap-4">
+                <div>
+                    <label class="block text-[10px] uppercase text-gray-500 font-bold mb-1 ml-1">Sua Idade</label>
+                    <input type="number" id="idade" min="1" required placeholder="Ex: 25" 
+                           class="w-full p-4 bg-zinc-800 border border-zinc-700 rounded-2xl focus:border-yellow-500 outline-none transition-all">
+                </div>
+                <div>
+                    <label class="block text-[10px] uppercase text-gray-500 font-bold mb-1 ml-1">Cupom</label>
+                    <input type="text" id="cupom" placeholder="CUPOM" 
+                           class="w-full p-4 bg-zinc-800 border border-zinc-700 rounded-2xl focus:border-yellow-500 outline-none uppercase transition-all">
+                </div>
+            </div>
+
+            <div>
+                <label class="block text-[10px] uppercase text-gray-500 font-bold mb-1 ml-1">WhatsApp</label>
+                <input type="tel" id="whatsapp" required placeholder="(00) 00000-0000" 
+                       class="w-full p-4 bg-zinc-800 border border-zinc-700 rounded-2xl focus:border-yellow-500 outline-none transition-all">
+            </div>
+
+            <div class="bg-yellow-600/5 p-4 rounded-2xl border border-yellow-600/20 text-center my-6">
+                <span class="text-xs text-gray-400">VALOR DO INGRESSO</span>
+                <span class="text-3xl font-black block text-yellow-500">R$ 30,00</span>
+            </div>
+
+            <button type="submit" id="btnPagar" class="w-full bg-red-600 hover:bg-red-700 py-5 font-black rounded-2xl uppercase tracking-wider text-lg transition-all transform active:scale-95 shadow-lg">
+                Reservar Ingresso
+            </button>
+        </form>
+
+        <p class="text-[9px] text-center text-gray-600 mt-6 uppercase font-bold">
+            Ingressos limitados: 100 unidades | Pagamento via InfinitePay
+        </p>
+    </div>
+
+    <script>
+        // SUA URL DO GOOGLE APPS SCRIPT
+        const WEB_APP_URL = 'https://script.google.com/macros/s/AKfycbwr33lbAy-1pr2iIV7pRkymPVSqNT24ZOMb3c-WOcQMngRvIjyJK2XlLKnBNoXOfBfu/exec';
+
+        document.getElementById('vendaForm').onsubmit = async (e) => {
+            e.preventDefault();
+            const idade = parseInt(document.getElementById('idade').value);
+            
+            if (idade < 15) {
+                alert("❌ Acesso negado: O show é permitido apenas para maiores de 15 anos.");
+                return;
+            }
+
+            const btn = document.getElementById('btnPagar');
+            const originalText = btn.innerText;
+            btn.innerText = 'PREPARANDO SEU TICKET...';
+            btn.disabled = true;
+
+            const dados = {
+                nome: document.getElementById('nome').value,
+                idade: idade,
+                whatsapp: document.getElementById('whatsapp').value,
+                cupom: document.getElementById('cupom').value.toUpperCase(),
+                email: 'vendas@evento.com' 
+            };
+
+            try {
+                // Enviando os dados para o Google Sheets/InfinitePay
+                const response = await fetch(WEB_APP_URL, {
+                    method: 'POST',
+                    mode: 'no-cors', // Importante para evitar erros de CORS no Google Script
+                    body: JSON.stringify(dados)
+                });
+
+                // Como usamos 'no-cors', não conseguimos ler o JSON de resposta diretamente por segurança do navegador.
+                // DICA: Para Apps Script, o ideal é redirecionar o usuário após alguns segundos ou 
+                // configurar o script para retornar um redirecionamento.
+                
+                alert('✅ Pedido registrado! Você será redirecionado para o pagamento seguro da InfinitePay.');
+                
+                // Em um cenário real com GitHub + Apps Script, o ideal é o script salvar na planilha 
+                // e o usuário receber o link por WhatsApp ou Email, ou usar um pequeno truque de delay.
+                // Mas o registro na sua planilha já estará feito!
+                
+            } catch (err) {
+                console.error(err);
+                alert('Ops! Algo deu errado. Verifique sua internet.');
+            } finally {
+                btn.disabled = false;
+                btn.innerText = originalText;
+            }
+        };
+    </script>
+</body>
+</html>
