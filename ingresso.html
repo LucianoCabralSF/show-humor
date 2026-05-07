@@ -1,0 +1,7 @@
+<script>
+    // Link que a equipe vai ler (URL do Script + ID do Ingresso + Ação de Validar)
+    const urlValidacao = `${WEB_APP_URL}?id=${ticketID}&action=validate`;
+    
+    // O QR Code aponta para o link de validação
+    document.getElementById('qrcode').src = `https://api.qrserver.com/v1/create-qr-code/?size=300x300&data=${encodeURIComponent(urlValidacao)}`;
+</script>
