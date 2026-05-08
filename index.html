@@ -24,7 +24,7 @@
                 <p class="text-gray-500 text-[10px] tracking-widest uppercase mt-1">Auditório Instituto Lótus</p>
             </header>
 
-            <form id="formIngresso" class="space-y-4" method="POST" action="https://script.google.com/macros/s/AKfycbwr33lbAy-1pr2iIV7pRkymPVSqNT24ZOMb3c-WOcQMngRvIjyJK2XlLKnBNoXOfBfu/exec">
+            <form id="formIngresso" class="space-y-4">
                 <div>
                     <label class="text-[10px] uppercase text-gray-500 font-bold ml-1">Nome Completo</label>
                     <input type="text" id="nome" name="nome" autocomplete="name" required placeholder="Como no documento"
@@ -72,10 +72,64 @@
     </div>
 
     <script>
-        document.getElementById('formIngresso').addEventListener('submit', () => {
+        const APPS_SCRIPT_URL = 'https://script.google.com/macros/s/AKfycbwr33lbAy-1pr2iIV7pRkymPVSqNT24ZOMb3c-WOcQMngRvIjyJK2XlLKnBNoXOfBfu/exec';
+
+        function restoreButton() {
+            const btn = document.getElementById('btnAcao');
+            btn.disabled = false;
+            btn.innerText = 'Comprar Agora';
+        }
+
+        document.getElementById('formIngresso').addEventListener('submit', (event) => {
+            event.preventDefault();
+
             const btn = document.getElementById('btnAcao');
             btn.disabled = true;
             btn.innerText = 'PROCESSANDO...';
+
+            const callbackName = 'checkoutCallback_' + Date.now();
+            const params = new URLSearchParams({
+                action: 'checkout',
+                callback: callbackName,
+                nome: document.getElementById('nome').value.trim(),
+                email: document.getElementById('email').value.trim(),
+                idade: document.getElementById('idade').value.trim(),
+                whatsapp: document.getElementById('whatsapp').value.trim(),
+                setor: document.getElementById('setor').value
+            });
+
+            const script = document.createElement('script');
+            const timeout = window.setTimeout(() => {
+                delete window[callbackName];
+                script.remove();
+                restoreButton();
+                alert('Não foi possível gerar o checkout. Tente novamente.');
+            }, 20000);
+
+            window[callbackName] = (data) => {
+                window.clearTimeout(timeout);
+                delete window[callbackName];
+                script.remove();
+
+                if (data && data.url) {
+                    window.location.href = data.url;
+                    return;
+                }
+
+                restoreButton();
+                alert((data && data.error) || 'Não foi possível gerar o checkout. Tente novamente.');
+            };
+
+            script.onerror = () => {
+                window.clearTimeout(timeout);
+                delete window[callbackName];
+                script.remove();
+                restoreButton();
+                alert('Erro ao conectar com o servidor. Tente novamente.');
+            };
+
+            script.src = `${APPS_SCRIPT_URL}?${params.toString()}`;
+            document.body.appendChild(script);
         });
     </script>
 </body>
