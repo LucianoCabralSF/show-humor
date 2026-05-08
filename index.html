@@ -24,31 +24,37 @@
                 <p class="text-gray-500 text-[10px] tracking-widest uppercase mt-1">Auditório Instituto Lótus</p>
             </header>
 
-            <form id="formIngresso" class="space-y-4">
+            <form id="formIngresso" class="space-y-4" method="POST" action="https://script.google.com/macros/s/AKfycbwr33lbAy-1pr2iIV7pRkymPVSqNT24ZOMb3c-WOcQMngRvIjyJK2XlLKnBNoXOfBfu/exec">
                 <div>
                     <label class="text-[10px] uppercase text-gray-500 font-bold ml-1">Nome Completo</label>
-                    <input type="text" id="nome" required placeholder="Como no documento"
+                    <input type="text" id="nome" name="nome" autocomplete="name" required placeholder="Como no documento"
+                           class="w-full p-4 bg-zinc-800 rounded-xl border border-zinc-700 outline-none focus:border-yellow-500">
+                </div>
+
+                <div>
+                    <label class="text-[10px] uppercase text-gray-500 font-bold ml-1">E-mail</label>
+                    <input type="email" id="email" name="email" autocomplete="email" required placeholder="seuemail@exemplo.com"
                            class="w-full p-4 bg-zinc-800 rounded-xl border border-zinc-700 outline-none focus:border-yellow-500">
                 </div>
                 
                 <div class="grid grid-cols-2 gap-3">
                     <div>
                         <label class="text-[10px] uppercase text-gray-500 font-bold ml-1">Idade (15+)</label>
-                        <input type="number" id="idade" min="15" required placeholder="Ex: 20"
+                        <input type="number" id="idade" name="idade" min="15" required placeholder="Ex: 20"
                                class="w-full p-4 bg-zinc-800 rounded-xl border border-zinc-700 outline-none focus:border-yellow-500">
                     </div>
                     <div>
                         <label class="text-[10px] uppercase text-gray-500 font-bold ml-1">WhatsApp</label>
-                        <input type="tel" id="whatsapp" required placeholder="(92) 9..."
+                        <input type="tel" id="whatsapp" name="whatsapp" autocomplete="tel" required placeholder="(92) 9..."
                                class="w-full p-4 bg-zinc-800 rounded-xl border border-zinc-700 outline-none focus:border-yellow-500">
                     </div>
                 </div>
 
                 <div>
                     <label class="text-[10px] uppercase text-gray-500 font-bold ml-1">Setor</label>
-                    <select id="setor" class="w-full p-4 bg-zinc-800 rounded-xl border border-zinc-700 outline-none focus:border-yellow-500">
+                    <select id="setor" name="setor" class="w-full p-4 bg-zinc-800 rounded-xl border border-zinc-700 outline-none focus:border-yellow-500">
                         <option value="Plateia Geral">Plateia Geral - R$ 30,00</option>
-                        <option value="Lote VIP">Lote VIP - R$ 40,00</option>
+                        <option value="Área Premium ( Cadeiras Próximas ao Palco )">Área Premium / VIP - R$ 40,00</option>
                     </select>
                 </div>
 
@@ -66,40 +72,11 @@
     </div>
 
     <script>
-        const APPS_SCRIPT_URL = 'https://script.google.com/macros/s/AKfycbwr33lbAy-1pr2iIV7pRkymPVSqNT24ZOMb3c-WOcQMngRvIjyJK2XlLKnBNoXOfBfu/exec';
-        
-        document.getElementById('formIngresso').onsubmit = async (e) => {
-            e.preventDefault();
+        document.getElementById('formIngresso').addEventListener('submit', () => {
             const btn = document.getElementById('btnAcao');
             btn.disabled = true;
             btn.innerText = 'PROCESSANDO...';
-
-            const dados = {
-                nome: document.getElementById('nome').value,
-                idade: document.getElementById('idade').value,
-                whatsapp: document.getElementById('whatsapp').value,
-                setor: document.getElementById('setor').value
-            };
-
-            try {
-                // Envia dados para o Google Sheets/Apps Script
-                const response = await fetch(APPS_SCRIPT_URL, {
-                    method: 'POST',
-                    mode: 'no-cors',
-                    body: JSON.stringify(dados)
-                });
-
-                // Como a API dinâmica agora retorna a URL da InfinitePay:
-                // Mas no modo no-cors não lemos o JSON. 
-                // Então, como você tem o link fixo, vamos redirecionar direto:
-                window.location.href = 'https://checkout.infinitepay.io/instituto_lotus/qxn3oeq2ht';
-                
-            } catch (err) {
-                alert('Erro ao conectar com o servidor. Tente novamente.');
-                btn.disabled = false;
-                btn.innerText = 'Comprar Agora';
-            }
-        };
+        });
     </script>
 </body>
 </html>
