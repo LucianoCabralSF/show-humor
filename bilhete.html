@@ -17,17 +17,25 @@
         <p class="mt-2 text-sm text-zinc-400">Apresente este QR Code na portaria do evento.</p>
 
         <div class="mt-5 rounded-2xl border border-yellow-500/40 bg-yellow-500/10 p-4 text-left">
-            <p class="text-sm font-black uppercase text-yellow-500">Salve este ingresso</p>
+            <p class="text-sm font-black uppercase text-yellow-500">Atenção: ingresso pessoal</p>
             <p class="mt-1 text-sm leading-relaxed text-zinc-200">
-                Tire um print desta tela e guarde no celular. Este QR Code será necessário para liberar sua entrada no dia do evento.
+                Tire um print desta tela e guarde no celular. Este QR Code é restrito, não deve ser compartilhado com ninguém e libera a entrada apenas uma única vez.
             </p>
+            <label class="mt-4 flex items-start gap-3 text-sm font-bold leading-relaxed text-zinc-100">
+                <input id="confirmNotice" type="checkbox" class="mt-1 h-5 w-5 accent-yellow-500">
+                <span>Estou ciente de que este código é pessoal, não posso compartilhar e ele só terá validade em uma única leitura.</span>
+            </label>
         </div>
 
-        <div class="my-8 rounded-2xl bg-white p-4">
+        <div id="qrBlock" class="my-8 hidden rounded-2xl bg-white p-4">
             <img id="qrcode" class="mx-auto h-[260px] w-[260px]" alt="QR Code do ingresso">
         </div>
 
-        <div class="rounded-xl border border-zinc-800 bg-zinc-900 p-4">
+        <p id="confirmHint" class="my-8 rounded-2xl border border-zinc-800 bg-zinc-900 p-4 text-sm font-bold text-zinc-300">
+            Marque a confirmação acima para visualizar seu QR Code.
+        </p>
+
+        <div id="codeBlock" class="hidden rounded-xl border border-zinc-800 bg-zinc-900 p-4">
             <p class="text-[10px] font-bold uppercase tracking-widest text-zinc-500">Código do ingresso</p>
             <p id="ticketId" class="mt-1 text-xl font-black text-yellow-500"></p>
         </div>
@@ -43,6 +51,16 @@
         const ticketID = params.get('id') || params.get('order_nsu');
         const ticketLabel = document.getElementById('ticketId');
         const qrCode = document.getElementById('qrcode');
+        const confirmNotice = document.getElementById('confirmNotice');
+        const qrBlock = document.getElementById('qrBlock');
+        const codeBlock = document.getElementById('codeBlock');
+        const confirmHint = document.getElementById('confirmHint');
+
+        confirmNotice.addEventListener('change', () => {
+            qrBlock.classList.toggle('hidden', !confirmNotice.checked);
+            codeBlock.classList.toggle('hidden', !confirmNotice.checked);
+            confirmHint.classList.toggle('hidden', confirmNotice.checked);
+        });
 
         if (ticketID) {
             const urlValidacao = `${WEB_APP_URL}?id=${encodeURIComponent(ticketID)}&action=validate`;
