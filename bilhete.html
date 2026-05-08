@@ -1,0 +1,50 @@
+<!DOCTYPE html>
+<html lang="pt-br">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Bilhete - Show de Humor</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+    <style>
+        body { background: #050505; color: white; }
+        .ticket { background: #121212; border: 1px solid #333; border-radius: 20px; }
+    </style>
+</head>
+<body class="min-h-screen p-4 font-sans flex items-center justify-center">
+    <main class="ticket w-full max-w-md p-8 text-center shadow-2xl">
+        <p class="text-[10px] font-bold uppercase tracking-widest text-yellow-500">Instituto Lótus</p>
+        <h1 class="mt-2 text-2xl font-black uppercase">Seu ingresso</h1>
+        <p class="mt-2 text-sm text-zinc-400">Apresente este QR Code na portaria do evento.</p>
+
+        <div class="my-8 rounded-2xl bg-white p-4">
+            <img id="qrcode" class="mx-auto h-[260px] w-[260px]" alt="QR Code do ingresso">
+        </div>
+
+        <div class="rounded-xl border border-zinc-800 bg-zinc-900 p-4">
+            <p class="text-[10px] font-bold uppercase tracking-widest text-zinc-500">Código do ingresso</p>
+            <p id="ticketId" class="mt-1 text-xl font-black text-yellow-500"></p>
+        </div>
+
+        <p class="mt-6 text-xs leading-relaxed text-zinc-500">
+            A validação libera a entrada apenas quando o pagamento estiver aprovado.
+        </p>
+    </main>
+
+    <script>
+        const WEB_APP_URL = 'https://script.google.com/macros/s/AKfycbwr33lbAy-1pr2iIV7pRkymPVSqNT24ZOMb3c-WOcQMngRvIjyJK2XlLKnBNoXOfBfu/exec';
+        const params = new URLSearchParams(window.location.search);
+        const ticketID = params.get('id') || params.get('order_nsu');
+        const ticketLabel = document.getElementById('ticketId');
+        const qrCode = document.getElementById('qrcode');
+
+        if (ticketID) {
+            const urlValidacao = `${WEB_APP_URL}?id=${encodeURIComponent(ticketID)}&action=validate`;
+            ticketLabel.textContent = ticketID;
+            qrCode.src = `https://api.qrserver.com/v1/create-qr-code/?size=300x300&data=${encodeURIComponent(urlValidacao)}`;
+        } else {
+            ticketLabel.textContent = 'Não encontrado';
+            qrCode.remove();
+        }
+    </script>
+</body>
+</html>
