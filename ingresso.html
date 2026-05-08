@@ -5,10 +5,12 @@
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Portaria - Show de Humor</title>
     <script src="https://cdn.tailwindcss.com"></script>
+    <script src="https://unpkg.com/html5-qrcode@2.3.8/html5-qrcode.min.js"></script>
     <style>
         body { background: #050505; color: white; }
         video { background: #000; }
         .panel { background: #121212; border: 1px solid #333; border-radius: 20px; }
+        #reader video { object-fit: cover; }
     </style>
 </head>
 <body class="min-h-screen p-4 font-sans">
@@ -20,6 +22,7 @@
             </div>
 
             <div class="relative aspect-square bg-black">
+                <div id="reader" class="h-full w-full"></div>
                 <video id="camera" class="h-full w-full object-cover" playsinline muted></video>
                 <div class="pointer-events-none absolute inset-10 rounded-3xl border-4 border-yellow-500/80"></div>
             </div>
@@ -51,6 +54,7 @@
         const manualCode = document.getElementById('manualCode');
         let scanning = false;
         let detector;
+        let html5QrCode;
 
         function setStatus(message) {
             statusText.textContent = message;
@@ -83,12 +87,27 @@
         }
 
         btnCamera.addEventListener('click', async () => {
-            if (!('BarcodeDetector' in window)) {
-                setStatus('Este celular não suporta leitura automática. Use a câmera normal do aparelho ou digite o código.');
-                return;
-            }
-
             try {
+                if (window.Html5Qrcode) {
+                    camera.remove();
+                    html5QrCode = new Html5Qrcode('reader');
+                    btnCamera.textContent = 'Lendo QR Code...';
+                    setStatus('Aponte para o QR Code na tela do cliente.');
+                    await html5QrCode.start(
+                        { facingMode: 'environment' },
+                        { fps: 10, qrbox: { width: 240, height: 240 } },
+                        (decodedText) => {
+                            html5QrCode.stop().finally(() => openValidation(decodedText));
+                        }
+                    );
+                    return;
+                }
+
+                if (!('BarcodeDetector' in window)) {
+                    setStatus('Este celular não suporta leitura automática. Use a câmera normal do aparelho ou digite o código.');
+                    return;
+                }
+
                 detector = new BarcodeDetector({ formats: ['qr_code'] });
                 const stream = await navigator.mediaDevices.getUserMedia({
                     video: { facingMode: 'environment' },
