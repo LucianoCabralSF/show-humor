@@ -1,7 +1,114 @@
-<script>
-    // Link que a equipe vai ler (URL do Script + ID do Ingresso + Ação de Validar)
-    const urlValidacao = `${WEB_APP_URL}?id=${ticketID}&action=validate`;
-    
-    // O QR Code aponta para o link de validação
-    document.getElementById('qrcode').src = `https://api.qrserver.com/v1/create-qr-code/?size=300x300&data=${encodeURIComponent(urlValidacao)}`;
-</script>
+<!DOCTYPE html>
+<html lang="pt-br">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Portaria - Show de Humor</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+    <style>
+        body { background: #050505; color: white; }
+        video { background: #000; }
+        .panel { background: #121212; border: 1px solid #333; border-radius: 20px; }
+    </style>
+</head>
+<body class="min-h-screen p-4 font-sans">
+    <main class="mx-auto flex min-h-[calc(100vh-2rem)] w-full max-w-md flex-col justify-center">
+        <section class="panel overflow-hidden shadow-2xl">
+            <div class="border-b border-zinc-800 p-5 text-center">
+                <p class="text-[10px] font-bold uppercase tracking-widest text-yellow-500">Instituto Lótus</p>
+                <h1 class="mt-1 text-2xl font-black uppercase">Leitor da portaria</h1>
+            </div>
+
+            <div class="relative aspect-square bg-black">
+                <video id="camera" class="h-full w-full object-cover" playsinline muted></video>
+                <div class="pointer-events-none absolute inset-10 rounded-3xl border-4 border-yellow-500/80"></div>
+            </div>
+
+            <div class="space-y-4 p-5">
+                <button id="btnCamera" type="button" class="w-full rounded-2xl bg-yellow-500 py-4 text-sm font-black uppercase text-black active:scale-95">
+                    Abrir câmera
+                </button>
+
+                <form id="manualForm" class="grid grid-cols-[1fr_auto] gap-2">
+                    <input id="manualCode" type="text" placeholder="Código HM-000000"
+                           class="min-w-0 rounded-xl border border-zinc-700 bg-zinc-900 px-4 py-3 uppercase outline-none focus:border-yellow-500">
+                    <button class="rounded-xl bg-zinc-800 px-4 py-3 text-sm font-black uppercase active:scale-95" type="submit">
+                        Validar
+                    </button>
+                </form>
+
+                <p id="status" class="min-h-5 text-center text-sm text-zinc-400"></p>
+            </div>
+        </section>
+    </main>
+
+    <script>
+        const WEB_APP_URL = 'https://script.google.com/macros/s/AKfycbwr33lbAy-1pr2iIV7pRkymPVSqNT24ZOMb3c-WOcQMngRvIjyJK2XlLKnBNoXOfBfu/exec';
+        const btnCamera = document.getElementById('btnCamera');
+        const camera = document.getElementById('camera');
+        const statusText = document.getElementById('status');
+        const manualForm = document.getElementById('manualForm');
+        const manualCode = document.getElementById('manualCode');
+        let scanning = false;
+        let detector;
+
+        function setStatus(message) {
+            statusText.textContent = message;
+        }
+
+        function validationUrlFromCode(code) {
+            return `${WEB_APP_URL}?id=${encodeURIComponent(code.trim().toUpperCase())}&action=validate`;
+        }
+
+        function openValidation(value) {
+            const text = String(value || '').trim();
+            if (!text) return;
+            const url = text.startsWith('http') ? text : validationUrlFromCode(text);
+            window.location.href = url;
+        }
+
+        async function scanFrame() {
+            if (!scanning) return;
+            try {
+                const codes = await detector.detect(camera);
+                if (codes.length) {
+                    scanning = false;
+                    openValidation(codes[0].rawValue);
+                    return;
+                }
+            } catch (err) {
+                setStatus('Não foi possível ler este QR Code. Tente aproximar a câmera.');
+            }
+            requestAnimationFrame(scanFrame);
+        }
+
+        btnCamera.addEventListener('click', async () => {
+            if (!('BarcodeDetector' in window)) {
+                setStatus('Este celular não suporta leitura automática. Use a câmera normal do aparelho ou digite o código.');
+                return;
+            }
+
+            try {
+                detector = new BarcodeDetector({ formats: ['qr_code'] });
+                const stream = await navigator.mediaDevices.getUserMedia({
+                    video: { facingMode: 'environment' },
+                    audio: false
+                });
+                camera.srcObject = stream;
+                await camera.play();
+                scanning = true;
+                btnCamera.textContent = 'Lendo QR Code...';
+                setStatus('Aponte para o QR Code na tela do cliente.');
+                scanFrame();
+            } catch (err) {
+                setStatus('Câmera bloqueada. Libere a permissão ou valide pelo código.');
+            }
+        });
+
+        manualForm.addEventListener('submit', (event) => {
+            event.preventDefault();
+            openValidation(manualCode.value);
+        });
+    </script>
+</body>
+</html>
