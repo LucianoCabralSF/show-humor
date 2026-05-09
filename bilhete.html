@@ -11,10 +11,10 @@
     </style>
 </head>
 <body class="min-h-screen p-4 font-sans flex items-center justify-center">
-    <main class="ticket w-full max-w-md p-8 text-center shadow-2xl">
+    <main class="ticket w-full max-w-2xl p-8 text-center shadow-2xl">
         <p class="text-[10px] font-bold uppercase tracking-widest text-yellow-500">Instituto Lótus</p>
         <h1 class="mt-2 text-2xl font-black uppercase">Seu ingresso</h1>
-        <p class="mt-2 text-sm text-zinc-400">Apresente este QR Code na portaria do evento.</p>
+        <p class="mt-2 text-sm text-zinc-400">Apresente o QR Code de cada pessoa na portaria do evento.</p>
 
         <div class="mt-5 rounded-2xl border border-yellow-500/40 bg-yellow-500/10 p-4 text-left">
             <p class="text-sm font-black uppercase text-yellow-500">Atenção: ingresso pessoal</p>
@@ -27,8 +27,8 @@
             </label>
         </div>
 
-        <div id="qrBlock" class="my-8 hidden rounded-2xl bg-white p-4">
-            <img id="qrcode" class="mx-auto h-[260px] w-[260px]" alt="QR Code do ingresso">
+        <div id="qrBlock" class="my-8 hidden space-y-4">
+            <div id="qrList" class="grid gap-4"></div>
         </div>
 
         <p id="confirmHint" class="my-8 rounded-2xl border border-zinc-800 bg-zinc-900 p-4 text-sm font-bold text-zinc-300">
@@ -36,8 +36,8 @@
         </p>
 
         <div id="codeBlock" class="hidden rounded-xl border border-zinc-800 bg-zinc-900 p-4">
-            <p class="text-[10px] font-bold uppercase tracking-widest text-zinc-500">Código do ingresso</p>
-            <p id="ticketId" class="mt-1 text-xl font-black text-yellow-500"></p>
+            <p class="text-[10px] font-bold uppercase tracking-widest text-zinc-500">Código dos ingressos</p>
+            <div id="ticketList" class="mt-2 space-y-1 text-xl font-black text-yellow-500"></div>
         </div>
 
         <p class="mt-6 text-xs leading-relaxed text-zinc-500">
@@ -48,9 +48,12 @@
     <script>
         const WEB_APP_URL = 'https://script.google.com/macros/s/AKfycbwr33lbAy-1pr2iIV7pRkymPVSqNT24ZOMb3c-WOcQMngRvIjyJK2XlLKnBNoXOfBfu/exec';
         const params = new URLSearchParams(window.location.search);
-        const ticketID = params.get('id') || params.get('order_nsu');
-        const ticketLabel = document.getElementById('ticketId');
-        const qrCode = document.getElementById('qrcode');
+        const ticketIDs = (params.get('ids') || params.get('id') || params.get('order_nsu') || '')
+            .split(',')
+            .map((id) => id.trim())
+            .filter(Boolean);
+        const ticketList = document.getElementById('ticketList');
+        const qrList = document.getElementById('qrList');
         const confirmNotice = document.getElementById('confirmNotice');
         const qrBlock = document.getElementById('qrBlock');
         const codeBlock = document.getElementById('codeBlock');
@@ -62,13 +65,24 @@
             confirmHint.classList.toggle('hidden', confirmNotice.checked);
         });
 
-        if (ticketID) {
-            const urlValidacao = `${WEB_APP_URL}?id=${encodeURIComponent(ticketID)}&action=validate`;
-            ticketLabel.textContent = ticketID;
-            qrCode.src = `https://api.qrserver.com/v1/create-qr-code/?size=300x300&data=${encodeURIComponent(urlValidacao)}`;
+        if (ticketIDs.length) {
+            ticketIDs.forEach((ticketID, index) => {
+                const urlValidacao = `${WEB_APP_URL}?id=${encodeURIComponent(ticketID)}&action=validate`;
+                const item = document.createElement('div');
+                item.className = 'rounded-2xl bg-white p-4 text-zinc-950';
+                item.innerHTML = `
+                    <p class="mb-2 text-xs font-black uppercase tracking-widest text-zinc-500">Ingresso ${index + 1}</p>
+                    <img class="mx-auto h-[260px] w-[260px]" alt="QR Code do ingresso ${index + 1}" src="https://api.qrserver.com/v1/create-qr-code/?size=300x300&data=${encodeURIComponent(urlValidacao)}">
+                    <p class="mt-2 text-sm font-black">${ticketID}</p>
+                `;
+                qrList.appendChild(item);
+
+                const code = document.createElement('p');
+                code.textContent = ticketID;
+                ticketList.appendChild(code);
+            });
         } else {
-            ticketLabel.textContent = 'Não encontrado';
-            qrCode.remove();
+            ticketList.textContent = 'Não encontrado';
         }
     </script>
 </body>
